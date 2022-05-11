@@ -57,7 +57,7 @@ export default class MainGameScene extends Phaser.Scene
 
         this.playerSelectionSequence = []
 
-        this.lightUpDelay = 500
+        this.lightUpDelay = 800
         this.timer = 0
         this.currentButton = -1
 
@@ -72,24 +72,51 @@ export default class MainGameScene extends Phaser.Scene
         
     }
 
+    startNewGame()
+    {
+        console.log('new game')
+        this.newGameText.destroy()
+        
+        const z = getRandomInt(4)
+        this.currentSequence.push(z)
+
+        this.mode = MODES[1]
+        console.log('entering sequence play mode')
+    }
+
+    enterPlayerSelectMode()
+    {
+        console.log('entering player select mode')
+        this.mode = MODES[2]
+        this.buttons.map((button) => button.setInteractive(this.input.makePixelPerfect()))
+    }
+
+    enterSeqPlayMode()
+    {
+        console.log('entering seq play mode')
+        this.buttons.map((button) => button.setInteractive(false))
+        this.mode = MODES[1]
+        // setTimeout(() => {
+        //     this.mode = MODES[1]
+        // }, 800);
+    }
+
     addNewGameText()
     {
         // Create new game text
         // then delete it when clicked and change the mode
 
-        this.newGameText = this.add.text(50, 100, 'New Game', 
+        this.newGameText = this.add.text(350, 250, ['New', 'Game'], 
             { fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif',
             fontSize:'36px' });
         this.newGameText.setInteractive()
 
         this.newGameText.on('pointerdown', () => {
-            console.log('new game')
-            this.newGameText.destroy()
-            this.mode = MODES[1]
-            const z = getRandomInt(4)
-            this.currentSequence.push(z)
+            this.startNewGame()
         })
     }
+
+
 
     playSeqUpdate(delta)
     {
@@ -98,24 +125,22 @@ export default class MainGameScene extends Phaser.Scene
         {
             
             this.currentButton += 1
+            this.timer = 0
+
             if (this.currentButton >= this.currentSequence.length)
             {
-                this.timer = 0
-                this.currentButton = 0
+                
+                this.currentButton = -1
                 // change mode here!
-                console.log('entering player select mode')
+                console.log('reached end of current sequence')
                 console.log('current sequence:', this.currentSequence)
-                this.mode = MODES[2]
 
-                this.buttons.map((button) => button.setInteractive(this.input.makePixelPerfect()))
+                this.enterPlayerSelectMode()
             }
             else 
             {
-
-                this.timer = 0
                 const nowButton = this.currentSequence[this.currentButton]
                 console.log("blink", this.currentButton, nowButton)
-
                 this.buttons[nowButton].lightUp(500)
 
             }
@@ -136,36 +161,35 @@ export default class MainGameScene extends Phaser.Scene
             return
         }
 
-        this.playerSelectionSequence.forEach((e1, i) => {
-            if (e1 !== this.currentSequence[i])
-            {
-                // wrong answer!
-                console.log('Wrong answer!')
-                console.log(this.currentSequence)
-                console.log(this.playerSelectionSequence)
-                this.buttons.map((button) => button.setInteractive(false))
-                this.mode = MODES[0]
-                this.addNewGameText()
-                this.playerSelectionSequence = []
-                this.currentSequence = []
-            }
-        })
-
-        if (this.playerSelectionSequence.length === this.currentSequence.length)
+        if (this.playerSelectionSequence.length < this.currentSequence.length)
+        {
+            this.playerSelectionSequence.forEach((e1, i) => {
+                if (e1 !== this.currentSequence[i])
+                {
+                    // wrong answer!
+                    console.log('Wrong answer!')
+                    console.log(this.currentSequence)
+                    console.log(this.playerSelectionSequence)
+                    this.buttons.map((button) => button.setInteractive(false))
+                    this.mode = MODES[0]
+                    this.addNewGameText()
+                    this.playerSelectionSequence = []
+                    this.currentSequence = []
+                }
+            })
+        }
+        else if (this.playerSelectionSequence.length === this.currentSequence.length)
         {
             console.log('all correct')
             console.log(this.currentSequence)
             console.log(this.playerSelectionSequence)
             // all correct and full length
+
             const z = getRandomInt(4)
             this.currentSequence.push(z)
             this.playerSelectionSequence = []
-            this.buttons.map((button) => button.setInteractive(false))
             
-
-            setTimeout(() => {
-                this.mode = MODES[1]
-            }, 800);
+            this.enterSeqPlayMode()
 
         }
     }
