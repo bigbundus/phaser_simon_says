@@ -6,7 +6,8 @@ import Button from '../buttons/Button'
 const MODES = {
     0: 'GAME_OVER',
     1: 'PLAYING_SEQUENCE',
-    2: 'PLAYER_SELECTING'
+    2: 'PLAYER_SELECTING',
+    3: 'N_SELECT'
 }
 
 function getRandomInt(max) {
