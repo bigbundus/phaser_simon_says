@@ -10,6 +10,8 @@ const MODES = {
     3: 'N_SELECT'
 }
 
+// change this
+
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
